@@ -31,12 +31,19 @@ webSocketServer.on('request', function (request) {
 
 
     websocket.on('message', function(msg) {
-        var object = JSON.stringify({text:msg.utf8Data , done:false});
+        var object,
+            recievedObject = JSON.parse(msg.utf8Data);
 
-        console.log('Recieved "' + msg.utf8Data + '" from ' + request.origin);
+        object = JSON.stringify({
+            text: recievedObject.message ,
+            done: false,
+            token: recievedObject.token
+        });
+
+        console.log('Recieved "' + recievedObject.message + '" from ' + request.origin);
         for(var i in clients) {
             clients[i].send(object);
-            console.log('Sendt ' + msg.utf8Data + ' til ' + i);
+            console.log('Sendt ' + recievedObject.message + ' til ' + i);
         }
     });
 
