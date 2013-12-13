@@ -1,19 +1,17 @@
-var http = require('http');
-var WSServer = require('websocket').server;
-var url = require('url');
-var clientHtml = require('fs').readFileSync('client.html');
+var http = require('http'),
+    WSServer = require('websocket').server,
+    url = require('url'),
 
-var plainHttpServer = http.createServer(function(request,response) {
-    response.writeHead(200, {'Content-type' : 'text/html'});
-    response.end(clientHtml);
-}).listen(8080);
 
-var webSocketServer = new WSServer({httpServer: plainHttpServer});
+    plainHttpServer = http.createServer(function(request,response) {
+        response.writeHead(200, {'Content-type' : 'text/html'});
+        response.end(clientHtml);
+    }).listen(8080),
 
-var accept = ['localhost','127.0.0.1','kent.fronter.net'];
-
-var count = 0;
-var clients = {};
+    webSocketServer = new WSServer({httpServer: plainHttpServer}),
+    accept = ['localhost','127.0.0.1','kent.fronter.net'],
+    count = 0,
+    clients = {};
 
 webSocketServer.on('request', function (request) {
     request.origin = request.origin || '*';
@@ -42,7 +40,9 @@ webSocketServer.on('request', function (request) {
 
         console.log('Recieved "' + recievedObject.message + '" from ' + request.origin);
         for(var i in clients) {
-            clients[i].send(object);
+            if (clients[i] !== websocket) {
+                clients[i].send(object);
+            }
             console.log('Sendt ' + recievedObject.message + ' til ' + i);
         }
     });
